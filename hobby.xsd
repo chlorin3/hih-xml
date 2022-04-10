@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
+  <xs:element name="hobby">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ukuleles" type="ukulelesType" minOccurs ="1" maxOccurs="1"/>
+        <xs:element name="musicians" type="musiciansType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="history" type="historyType" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="author" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="ukulelesType">
+    <xs:sequence>
+      <xs:element name="ukulele" type="ukuleleType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ukuleleType">
+    <xs:sequence>
+      <xs:element name="price" minOccurs="1" maxOccurs="2" type="priceType"/>
+      <xs:element name="image" minOccurs="1" maxOccurs="unbounded" type="imageType"/>
+    </xs:sequence>
+    <xs:attribute name="kind" type="kindType" use="required"/>
+  </xs:complexType>
+
+  <xs:simpleType name="kindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="soprano"/>
+      <xs:enumeration value="baritone"/>
+      <xs:enumeration value="concert"/>
+      <xs:enumeration value="tenor"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="priceTypeRestricted">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="1500"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="priceType">
+    <xs:simpleContent>
+      <xs:extension base="priceTypeRestricted">
+        <xs:attribute name="currency" use="required" type="currencyType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:simpleType name="currencyType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PLN"/>
+      <xs:enumeration value="EUR"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="imageType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute ref="source" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:attribute name="source">
+    <xs:simpleType>
+      <xs:restriction base="xs:anyURI">
+        <xs:pattern value="www.*|img.*|https.*"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:attribute>
+  
+  <xs:simpleType name="difficultyList">
+  <xs:list>
+    <xs:simpleType>
+      <xs:restriction base="xs:token">
+        <xs:enumeration value="1"/>
+        <xs:enumeration value="2"/>
+        <xs:enumeration value="3"/>
+        <xs:enumeration value="4"/>
+        <xs:enumeration value="5"/>
+        <xs:enumeration value="6"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:list>
+  </xs:simpleType>
+  
+  <xs:complexType name="musiciansType">
+    <xs:sequence>
+      <xs:element name="difficultyAscendingOrder" type="difficultyList" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="musician" minOccurs="1" maxOccurs ="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="song" type="songType" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+          <xs:attribute name="type">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="band|solo"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="name" type="xs:string"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="songType">
+    <xs:choice>
+      <xs:element name="english">
+        <xs:complexType>
+          <xs:group ref="songs"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="polish">
+        <xs:complexType>
+          <xs:group ref="songs"/>
+        </xs:complexType>
+      </xs:element>
+      </xs:choice>
+    <xs:attribute name="difficult" type="difficulty" use="optional"/>
+  </xs:complexType>
+
+  <xs:simpleType name="difficulty">
+    <xs:union memberTypes="difficultyByBoolean difficultyByLvl"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="difficultyByBoolean">
+    <xs:restriction base="xs:boolean"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="difficultyByLvl">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="6"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:group name="songs">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+      <xs:element name="released" type="xs:date" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="live" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute ref="source"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="historyType" mixed="true">
+    <xs:sequence>
+      <xs:element name="text" type="longStringType" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element ref="author" minOccurs="0" maxOccurs="2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="author">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="name" type="shortStringType" minOccurs="1" maxOccurs="2"/>
+        <xs:element name="surname" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:simpleType name="longStringType">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="5000"/>
+      <xs:minLength value="1000"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="shortStringType">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="30"/>
+      <xs:minLength value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
